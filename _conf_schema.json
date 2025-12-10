@@ -1,0 +1,20 @@
+{
+  "max_page": {
+      "description": "最大抓取页数",
+      "type": "int",
+      "hint": "每次检查更新时，最多抓取多少页",
+      "default": 3
+  },
+  "check_interval": {
+      "description": "更新检查间隔",
+      "type": "int",
+      "hint": "隔多少时间检查一次更新（单位：分钟）",
+      "default": 360
+  },
+  "base_url": {
+      "description": "琉璃神社首页地址",
+      "type": "string",
+      "hint": "格式为 https://xxx/wp/ 最新地址可从发布页https://www.hacg.icu/获取",
+      "default": "https://www.hacg.icu/wp/"
+  }
+}

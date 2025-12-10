@@ -1,0 +1,5 @@
+name: llss_sub # 插件的唯一识别名
+desc: 推送琉璃神社的更新到群聊 # 插件简短描述
+version: v1.0.0 # 插件版本号
+author: Joker42S # 作者
+repo:  https://github.com/Joker42S/astrbot_plugin_llss_sub # 插件的仓库地址
