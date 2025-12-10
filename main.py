@@ -35,6 +35,9 @@ class LlssSub(Star):
     async def add_sub(self, event: AstrMessageEvent):
         new_source = event.unified_msg_origin
         sources = self._load_sub_sources()
+        if new_source in sources:
+            yield event.plain_result("已订阅，无需重复订阅")
+            return
         sources.append(new_source)
         await self._save_sub_sources(sources)
         yield event.plain_result("订阅成功")
