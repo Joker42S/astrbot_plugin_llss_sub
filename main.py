@@ -14,7 +14,7 @@ class LlssSub(Star):
         super().__init__(context)
         self.config = config
         self.context = context
-    
+
     async def initialize(self):
         self.plugin_name = 'llss_sub'
         self.check_interval = self.config.get("check_interval", 360)
@@ -53,9 +53,10 @@ class LlssSub(Star):
             logger.info("无订阅源，无需刷新")
             return
         new_articles : List[Dict] = await self.llss.fetch_latest_articles()
-        msg = MessageChain().message(f"琉璃神社更新了{len(new_articles)}篇新文章。\n")
-        for source in sources:
-            await self.context.send_message(source, msg)
+        if len(new_articles) > 0:
+            msg = MessageChain().message(f"琉璃神社更新了{len(new_articles)}篇新文章。\n")
+            for source in sources:
+                await self.context.send_message(source, msg)
         for article in new_articles:
             title = article.get("title", "无标题")
             url = article.get("url", "")
@@ -71,7 +72,7 @@ class LlssSub(Star):
             return []
         with open(str(self.sub_sources_file), "r", encoding="utf-8") as f:
             return json.load(f)
-        
+
     async def _save_sub_sources(self, sources):
         with open(str(self.sub_sources_file), "w", encoding="utf-8") as f:
             json.dump(sources, f, ensure_ascii=False, indent=4)
