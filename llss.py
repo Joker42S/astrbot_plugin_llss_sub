@@ -125,7 +125,7 @@ class LlssCrawler:
                 return results
 
             img = art.select_one("div p img")
-            cover = img["src"] if img else None
+            cover = img.get("src", None) if img else None
 
             desc = art.select_one("div p").get_text(separator="\n", strip=True)
 
@@ -150,7 +150,7 @@ class LlssCrawler:
                     logger.info("该页无文章，停止。")
                     break
 
-                new_on_page = 0
+                stop_fetch = False
 
                 for art in articles:
                     a = (
@@ -173,7 +173,8 @@ class LlssCrawler:
 
                     # 已经抓过
                     if id_val <= latest_id:
-                        continue
+                        stop_fetch = True
+                        break
 
                     img = art.select_one("div p img")
                     cover = img["src"] if img else None
@@ -184,12 +185,11 @@ class LlssCrawler:
                     results.append(data)
                     logger.info(f"发现新文章：{title} (ID={id_val})")
 
-                    new_on_page += 1
                     if id_val > max_new_id:
                         max_new_id = id_val
 
-                if new_on_page == 0:
-                    logger.info(f"第 {page_index} 页无新增文章，停止。")
+                if stop_fetch:
+                    logger.info(f"第 {page_index} 页内已到达上一次记录位置，停止。")
                     break
                 await asyncio.sleep(3)
 

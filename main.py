@@ -6,6 +6,7 @@ from astrbot.api.event import MessageChain
 
 import asyncio
 from .llss import LlssCrawler
+from .utils import download_image
 from pathlib import Path
 import json
 
@@ -56,16 +57,23 @@ class LlssSub(Star):
         if len(new_articles) > 0:
             msg = MessageChain().message(f"琉璃神社更新了{len(new_articles)}篇新文章。\n")
             for source in sources:
-                await self.context.send_message(source, msg)
+                try:
+                    await self.context.send_message(source, msg)
+                except Exception as e:
+                    logger.error(f"发送订阅更新消息到订阅源:{source}时失败: {e}")
         for article in new_articles:
             title = article.get("title", "无标题")
             url = article.get("url", "")
             desc = article.get("desc", "")
             cover = article.get("cover", None)
+            cover = await download_image(cover) if cover else None
             msg = MessageChain().message(f"【标题】：{title}\n【内容】：{desc}\n【链接】：{url}\n")
-            msg.url_image(cover)
+            msg.file_image(cover)
             for source in sources:
-                await self.context.send_message(source, msg)
+                try:
+                    await self.context.send_message(source, msg)
+                except Exception as e:
+                    logger.error(f"发送订阅更新消息到订阅源:{source}时失败: {e}，内容：{msg}")
 
     def _load_sub_sources(self):
         if not Path.exists(self.sub_sources_file):
