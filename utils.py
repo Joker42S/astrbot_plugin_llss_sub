@@ -59,9 +59,6 @@ async def _download_image_with_retry(
                         logger.warning(f"HTTP错误 {response.status}，尝试 {attempt + 1}/{max_retries}")
                         continue
                     
-                    # 获取内容长度
-                    content_length = response.headers.get('Content-Length')
-                    
                     # 读取并保存文件
                     content = await response.read()
                     
@@ -107,49 +104,3 @@ async def _download_image_with_retry(
     
     logger.error(f"图片下载失败，已尝试 {max_retries} 次: {url}")
     return False
-
-async def _image_obfus(img_data):
-    """破坏图片哈希"""
-    from PIL import Image as ImageP
-    from io import BytesIO
-    import random
-
-    try:
-        with BytesIO(img_data) as input_buffer:
-            with ImageP.open(input_buffer) as img:
-                if img.mode != "RGB":
-                    img = img.convert("RGB")
-
-                width, height = img.size
-                pixels = img.load()
-
-                points = []
-                for _ in range(3):
-                    while True:
-                        x = random.randint(0, width - 1)
-                        y = random.randint(0, height - 1)
-                        if (x, y) not in points:
-                            points.append((x, y))
-                            break
-
-                for x, y in points:
-                    r, g, b = pixels[x, y]
-
-                    r_change = random.choice([-1, 1])
-                    g_change = random.choice([-1, 1])
-                    b_change = random.choice([-1, 1])
-
-                    new_r = max(0, min(255, r + r_change))
-                    new_g = max(0, min(255, g + g_change))
-                    new_b = max(0, min(255, b + b_change))
-
-                    pixels[x, y] = (new_r, new_g, new_b)
-
-                with BytesIO() as output:
-                    img.save(output, format="JPEG", quality=95, subsampling=0)
-                    return output.getvalue()
-
-    except Exception as e:
-        logger.warning(f"破坏图片哈希时发生错误: {str(e)}")
-        return img_data
-    
