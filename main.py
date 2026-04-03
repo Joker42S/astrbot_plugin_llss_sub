@@ -67,7 +67,7 @@ class LlssSub(Star):
             desc = article.get("desc", "")
             cover = article.get("cover", None)
             cover = await download_image(cover) if cover else None
-            msg = MessageChain().message(f"【标题】：{title}\n【内容】：{desc}\n")
+            msg = MessageChain().message(f"【标题】：{title}\n【内容】：{desc}\n【链接】：{url}")
             msg.file_image(cover)
             for source in sources:
                 try:
