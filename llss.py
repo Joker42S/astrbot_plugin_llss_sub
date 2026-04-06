@@ -4,7 +4,6 @@ from astrbot.api import logger
 
 import asyncio
 import aiohttp
-import async_timeout
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import os
@@ -68,10 +67,10 @@ class LlssCrawler:
 
         for attempt in range(1, self.retry + 1):
             try:
-                async with async_timeout.timeout(60):
-                    async with session.get(url, headers=self.headers) as resp:
-                        resp.raise_for_status()
-                        return await resp.text()
+                timeout = aiohttp.ClientTimeout(total=60)
+                async with session.get(url, headers=self.headers, timeout=timeout) as resp:
+                    resp.raise_for_status()
+                    return await resp.text()
 
             except Exception as e:
                 logger.info(f"[获取琉璃神社内容失败 {attempt}/{self.retry}] 请求失败: {url} -> {e}")
